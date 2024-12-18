@@ -1,4 +1,4 @@
-package com.fetch.rewards.model
+package com.fetch.rewards.api.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 data class FetchItem(
     @SerialName("id") val id: Int,
     @SerialName("listId") val listId: Int,
-    @SerialName("name") val name: String
+    @SerialName("name") val name: String?
 )

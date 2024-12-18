@@ -35,6 +35,8 @@ class FetchNetworkService @Inject constructor() {
             .create(FetchApi::class.java)
     }
 
+    suspend fun getFetchItems() = wrapRequest { fetchApi.getFetchItems() }
+
     //TODO Move this to base class?
     private suspend fun <T> wrapRequest(
         request: suspend () -> Response<T>

@@ -1,27 +1,69 @@
 package com.fetch.rewards.viewmodel
 
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.fetch.rewards.model.FetchItem
-import com.fetch.rewards.model.FetchList
+import androidx.lifecycle.viewModelScope
+import com.fetch.rewards.api.model.FetchItem
+import com.fetch.rewards.repository.FetchRepository
+import com.fetch.rewards.ui.model.FetchItemRow
+import com.fetch.rewards.ui.model.FetchList
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-// val groupedItems = fetchItems.groupBy { it.listId }.toSortedMap()
-
 @HiltViewModel
-class FetchItemListViewModel @Inject constructor() : ViewModel() {
+class FetchItemListViewModel @Inject constructor(private val fetchRepository: FetchRepository) : ViewModel() {
 
-    val fetchLists = mutableListOf<FetchList>().apply {
-        for(listIndex in 1..10) {
-            val fetchItems = mutableListOf<FetchItem>().apply {
-                for(itemIndex in 1..3) {
-                    val itemId = (listIndex * 10) + itemIndex
-                    add(FetchItem(id = itemId, listId = listIndex, name = "List Item $itemId"))
-                }
-            }.toList()
+    private var fetchingItems by mutableStateOf(true)
+    private var groupingItems by mutableStateOf(false)
+    val isLoading by derivedStateOf { fetchingItems || groupingItems }
 
-            add(FetchList(listId = listIndex, items = fetchItems))
+    var fetchLists by mutableStateOf(emptyList<FetchList>())
+        private set
+
+    init {
+        viewModelScope.launch {
+            fetchRepository.fetchItems.collectLatest { fetchItems ->
+                groupingItems = true
+
+                fetchLists = fetchItems.toFetchLists()
+
+                groupingItems = false
+            }
         }
-    }.toList()
+
+        updateFetchItems()
+    }
+
+    private fun updateFetchItems() = viewModelScope.launch {
+        fetchingItems = true
+
+        fetchRepository.updateFetchItems()
+
+        fetchingItems = false
+    }
+
+    /**
+     * Converts a list of [FetchItem]s into a sorted list of [FetchList]s, grouping them by their listIds.
+     * Also filters out any [FetchItem]s with a null or blank name.
+     */
+    private suspend fun List<FetchItem>.toFetchLists() = withContext(Dispatchers.Default) {
+        filter { !it.name.isNullOrBlank() }
+            .groupBy { it.listId }
+            .toSortedMap()
+            .map { map ->
+                val rowItems = map.value.map { fetchItem ->
+                    FetchItemRow(id = fetchItem.id, name = fetchItem.name!!)
+                }.sortedWith(compareBy({ it.name }, { it.id }))
+
+                FetchList(listId = map.key, items = rowItems)
+            }
+    }
 
 }
