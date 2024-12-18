@@ -98,9 +98,26 @@ private fun FetchItemRow(fetchItemRow: FetchItemRow, modifier: Modifier = Modifi
 @Preview(showBackground = true)
 @Composable
 private fun MainListScreenPreview() {
-    //TODO Mock items
+    val fetchLists = listOf(
+        FetchList(
+            listId = 1,
+            items = listOf(
+                FetchItemRow(id = 101, name = "Item 101"),
+                FetchItemRow(id = 102, name = "Item 102"),
+                FetchItemRow(id = 103, name = "Item 103")
+            )
+        ),
+        FetchList(
+            listId = 2,
+            items = listOf(
+                FetchItemRow(id = 201, name = "Item 201"),
+                FetchItemRow(id = 202, name = "Item 202"),
+                FetchItemRow(id = 203, name = "Item 203")
+            )
+        )
+    )
 
     FetchTheme {
-        FetchItemListScreen(modifier = Modifier.fillMaxSize(), isLoading = false, fetchLists = emptyList())
+        FetchItemListScreen(modifier = Modifier.fillMaxSize(), isLoading = false, fetchLists = fetchLists)
     }
 }
