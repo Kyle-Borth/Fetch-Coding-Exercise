@@ -14,20 +14,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.fetch.rewards.model.FetchItem
 import com.fetch.rewards.model.FetchList
 import com.fetch.rewards.ui.theme.FetchTheme
 import com.fetch.rewards.ui.theme.PaddingNormal
 import com.fetch.rewards.ui.utility.LocalBottomSystemHeight
+import com.fetch.rewards.viewmodel.FetchItemListViewModel
 
 @Composable
-fun FetchItemListScreen(modifier: Modifier = Modifier) {
-    //TODO
+fun FetchItemListScreen(viewModel: FetchItemListViewModel = hiltViewModel(), modifier: Modifier = Modifier) {
+    FetchItemListScreen(fetchLists = viewModel.fetchLists, modifier = modifier)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun FetchItemListScreen(modifier: Modifier = Modifier, fetchLists: List<FetchList>) {
+private fun FetchItemListScreen(fetchLists: List<FetchList>, modifier: Modifier = Modifier) {
     //val groupedItems = fetchItems.groupBy { it.listId }.toSortedMap()
 
     Surface(modifier = modifier) {

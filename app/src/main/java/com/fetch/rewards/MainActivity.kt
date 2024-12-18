@@ -12,7 +12,9 @@ import androidx.compose.ui.Modifier
 import com.fetch.rewards.ui.screen.FetchItemListScreen
 import com.fetch.rewards.ui.theme.FetchTheme
 import com.fetch.rewards.ui.utility.LocalBottomSystemHeight
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
