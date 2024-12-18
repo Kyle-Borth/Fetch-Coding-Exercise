@@ -6,6 +6,8 @@ import com.fetch.rewards.model.FetchList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
+// val groupedItems = fetchItems.groupBy { it.listId }.toSortedMap()
+
 @HiltViewModel
 class FetchItemListViewModel @Inject constructor() : ViewModel() {
 

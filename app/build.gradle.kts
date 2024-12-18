@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.dagger.hilt)
+    alias(libs.plugins.serialization)
 }
 
 android {
@@ -59,6 +60,12 @@ dependencies {
     implementation(libs.hilt)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.compose)
+
+    // Networking / Serialization
+    implementation(libs.okhttp)
+    implementation(libs.retrofit)
+    implementation(libs.converter.kotlinx)
+    implementation(libs.serialization.json)
 }
 
 kapt {

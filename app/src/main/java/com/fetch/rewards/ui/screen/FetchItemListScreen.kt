@@ -30,8 +30,6 @@ fun FetchItemListScreen(viewModel: FetchItemListViewModel = hiltViewModel(), mod
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun FetchItemListScreen(fetchLists: List<FetchList>, modifier: Modifier = Modifier) {
-    //val groupedItems = fetchItems.groupBy { it.listId }.toSortedMap()
-
     Surface(modifier = modifier) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             fetchLists.forEach { fetchList ->
