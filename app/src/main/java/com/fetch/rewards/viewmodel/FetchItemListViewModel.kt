@@ -13,6 +13,7 @@ import com.fetch.rewards.ui.model.FetchList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -24,12 +25,12 @@ class FetchItemListViewModel @Inject constructor(private val fetchRepository: Fe
     private var groupingItems by mutableStateOf(false)
     val isLoading by derivedStateOf { fetchingItems || groupingItems }
 
-    var fetchLists by mutableStateOf(emptyList<FetchList>())
+    var fetchLists by mutableStateOf<List<FetchList>?>(null)
         private set
 
     init {
         viewModelScope.launch {
-            fetchRepository.fetchItems.collectLatest { fetchItems ->
+            fetchRepository.fetchItems.filterNotNull().collectLatest { fetchItems ->
                 groupingItems = true
 
                 fetchLists = fetchItems.toFetchLists()

@@ -3,4 +3,6 @@
     <string name="network_error">A network error has occurred</string>
     <string name="try_again">Please try again</string>
     <string name="retry">Retry</string>
+    <string name="no_items">There are no items available at this time</string>
+    <string name="try_later">Please try again later</string>
 </resources>
