@@ -41,7 +41,7 @@ class FetchItemListViewModel @Inject constructor(private val fetchRepository: Fe
         updateFetchItems()
     }
 
-    private fun updateFetchItems() = viewModelScope.launch {
+    fun updateFetchItems() = viewModelScope.launch {
         fetchingItems = true
 
         fetchRepository.updateFetchItems()

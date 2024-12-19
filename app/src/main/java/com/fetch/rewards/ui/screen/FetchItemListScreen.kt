@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.fetch.rewards.ui.component.NetworkError
 import com.fetch.rewards.ui.model.FetchItemRow
 import com.fetch.rewards.ui.model.FetchList
 import com.fetch.rewards.ui.theme.FetchTheme
@@ -25,38 +26,64 @@ import com.fetch.rewards.ui.theme.PaddingNormal
 import com.fetch.rewards.ui.utility.LocalBottomSystemHeight
 import com.fetch.rewards.viewmodel.FetchItemListViewModel
 
+//TODO Implement Pull-To-Refresh
+
 @Composable
 fun FetchItemListScreen(viewModel: FetchItemListViewModel = hiltViewModel(), modifier: Modifier = Modifier) {
-    FetchItemListScreen(fetchLists = viewModel.fetchLists, isLoading = viewModel.isLoading, modifier = modifier)
+    FetchItemListScreen(
+        fetchLists = viewModel.fetchLists,
+        isLoading = viewModel.isLoading,
+        modifier = modifier,
+        onUpdateList = { viewModel.updateFetchItems() }
+    )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun FetchItemListScreen(fetchLists: List<FetchList>, isLoading: Boolean, modifier: Modifier = Modifier) {
+private fun FetchItemListScreen(
+    fetchLists: List<FetchList>,
+    isLoading: Boolean,
+    modifier: Modifier = Modifier,
+    onUpdateList: () -> Unit
+) {
     Surface(modifier = modifier) {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            if(isLoading) {
-                item {
-                    LoadingRow(modifier = Modifier.fillMaxWidth())
-                }
-            }
-
-            fetchLists.forEach { fetchList ->
-                stickyHeader(key = fetchList.listId) {
-                    FetchSectionHeader(listId = fetchList.listId, modifier = Modifier.fillMaxWidth())
-                }
-
-                items(items = fetchList.items, key = { it.id }) { fetchItemRow ->
-                    FetchItemRow(fetchItemRow = fetchItemRow, modifier = Modifier.fillMaxWidth())
-                }
-            }
-
-            item {
-                Spacer(modifier = Modifier.fillMaxWidth().height(LocalBottomSystemHeight.current))
-            }
+        if(isLoading || fetchLists.isNotEmpty()) {
+            FetchItemList(fetchLists = fetchLists, isLoading = isLoading, modifier = Modifier.fillMaxSize())
+        }
+        else {
+            NetworkError(modifier = Modifier.fillMaxSize().padding(PaddingNormal), onRetry = onUpdateList)
         }
     }
 }
+
+//region Fetch Item List
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun FetchItemList(fetchLists: List<FetchList>, isLoading: Boolean, modifier: Modifier = Modifier) {
+    LazyColumn(modifier = modifier) {
+        if(isLoading) {
+            item {
+                LoadingRow(modifier = Modifier.fillMaxWidth())
+            }
+        }
+
+        fetchLists.forEach { fetchList ->
+            stickyHeader(key = fetchList.listId) {
+                FetchSectionHeader(listId = fetchList.listId, modifier = Modifier.fillMaxWidth())
+            }
+
+            items(items = fetchList.items, key = { it.id }) { fetchItemRow ->
+                FetchItemRow(fetchItemRow = fetchItemRow, modifier = Modifier.fillMaxWidth())
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.fillMaxWidth().height(LocalBottomSystemHeight.current))
+        }
+    }
+}
+
+//endregion
 
 //region Loading Row
 
@@ -118,6 +145,11 @@ private fun MainListScreenPreview() {
     )
 
     FetchTheme {
-        FetchItemListScreen(modifier = Modifier.fillMaxSize(), isLoading = false, fetchLists = fetchLists)
+        FetchItemListScreen(
+            modifier = Modifier.fillMaxSize(),
+            isLoading = false,
+            fetchLists = fetchLists,
+            onUpdateList = {}
+        )
     }
 }

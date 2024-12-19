@@ -10,6 +10,7 @@ import javax.inject.Singleton
 @Singleton
 class FetchRepository @Inject constructor(private val networkService: FetchNetworkService) : Repository() {
 
+    //TODO Default to null instead of empty list to account for no items returned from API
     private var _fetchItems = MutableStateFlow(emptyList<FetchItem>())
     val fetchItems: StateFlow<List<FetchItem>> get() = _fetchItems
 
