@@ -12,10 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,8 +35,6 @@ import com.fetch.rewards.ui.theme.PaddingNormal
 import com.fetch.rewards.ui.theme.PaddingSmall
 import com.fetch.rewards.ui.utility.LocalBottomSystemHeight
 import com.fetch.rewards.viewmodel.FetchItemListViewModel
-
-//TODO Implement Pull-To-Refresh
 
 @Composable
 fun FetchItemListScreen(viewModel: FetchItemListViewModel = hiltViewModel(), modifier: Modifier = Modifier) {
@@ -56,7 +56,12 @@ private fun FetchItemListScreen(
     Surface(modifier = modifier) {
         when {
             !fetchLists.isNullOrEmpty() -> {
-                FetchItemList(fetchLists = fetchLists, modifier = Modifier.fillMaxSize())
+                FetchItemList(
+                    fetchLists = fetchLists,
+                    isLoading = isLoading,
+                    modifier = Modifier.fillMaxSize(),
+                    onRefresh = onUpdateList
+                )
             }
             isLoading -> {
                 Loading(modifier = Modifier.fillMaxSize())
@@ -73,22 +78,29 @@ private fun FetchItemListScreen(
 
 //region Fetch Item List
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-private fun FetchItemList(fetchLists: List<FetchList>, modifier: Modifier = Modifier) {
-    LazyColumn(modifier = modifier) {
-        fetchLists.forEach { fetchList ->
-            stickyHeader(key = fetchList.listId) {
-                FetchSectionHeader(listId = fetchList.listId, modifier = Modifier.fillMaxWidth())
+private fun FetchItemList(
+    fetchLists: List<FetchList>,
+    isLoading: Boolean,
+    modifier: Modifier = Modifier,
+    onRefresh: () -> Unit
+) {
+    PullToRefreshBox(isRefreshing = isLoading, onRefresh = onRefresh, modifier = modifier) {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            fetchLists.forEach { fetchList ->
+                stickyHeader(key = fetchList.listId) {
+                    FetchSectionHeader(listId = fetchList.listId, modifier = Modifier.fillMaxWidth())
+                }
+
+                items(items = fetchList.items, key = { it.id }) { fetchItemRow ->
+                    FetchItemRow(fetchItemRow = fetchItemRow, modifier = Modifier.fillMaxWidth())
+                }
             }
 
-            items(items = fetchList.items, key = { it.id }) { fetchItemRow ->
-                FetchItemRow(fetchItemRow = fetchItemRow, modifier = Modifier.fillMaxWidth())
+            item {
+                Spacer(modifier = Modifier.fillMaxWidth().height(LocalBottomSystemHeight.current))
             }
-        }
-
-        item {
-            Spacer(modifier = Modifier.fillMaxWidth().height(LocalBottomSystemHeight.current))
         }
     }
 }
